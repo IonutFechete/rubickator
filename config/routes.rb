@@ -1,3 +1,5 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  get '/' => 'application#index', as: 'index'
+  get '/propose_group' => 'application#propose_group', as: 'group'
+  get '/propose_single' => 'application#propose_single', as: 'single'
 end

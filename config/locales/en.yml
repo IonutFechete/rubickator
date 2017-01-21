@@ -21,3 +21,9 @@
 
 en:
   hello: "Hello world"
+  generate_group: "Genereaza grup"
+  generate_single: "Genereaza single"
+  history: "Istoric"
+  principal: "Principal"
+  partner: "Partner"
+  principal_male: "Conducator"

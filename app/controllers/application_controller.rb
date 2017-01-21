@@ -1,6 +1,22 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
+  def index
+
+  end
+
+  def propose_group
+    @principal = suggest_principal_for_group_appointment
+    found = false
+    while !found
+      @partner = suggest_partner_for_group_appointment
+      found = true if @principal != @partner
+    end
+  end
+
+  def propose_single
+    @principal = suggest_principal_for_appointment
+  end
 
   def principal_appointment
     @suggested = suggest_principal_for_appointment
@@ -14,21 +30,42 @@ class ApplicationController < ActionController::Base
   def reset_cycle
     Appointment.delete_all
   end
+
   private
 
-  def appointments_count
-    @appointments_count ||= Appointment.count
+  def group_principals
+    @group_principals ||= Student.joins('LEFT JOIN "appointments" ON "appointments"."principal" = "students"."id"').where("students.sex = 'f' AND appointments.principal IS NULL")
+  end
+
+  def group_partners
+    @group_partners ||= Student.joins('LEFT JOIN "appointments" ON "appointments"."principal" = "students"."id"').where("students.sex = 'f' AND appointments.principal IS NULL")
+  end
+
+  def single_principals
+    @single_principals ||= Student.joins('LEFT JOIN "appointments" ON "appointments"."principal" = "students"."id"').where("students.sex = 'm' AND appointments.principal IS NULL")
+  end
+
+  def count_group_principals
+    group_principals.count
+  end
+
+  def count_single_principals
+    single_principals.count
+  end
+
+  def count_group_partners
+    group_partners.count
   end
 
   def suggest_principal_for_group_appointment
-    Student.includes(:principal_appointments).where("student.sex = 'f' AND principal_appointments.principal_id IS NULL").limit(1).offset(rand(appointments_count)).first
+    group_principals.offset(rand(count_group_principals)).first
   end
 
   def suggest_partner_for_group_appointment
-    Student.includes(:partner_appointments).where("student.sex = 'f' AND partner_appointments.student_id IS NULL").limit(1).offset(rand(appointments_count)).first
+    group_partners.offset(rand(count_group_partners)).first
   end
 
   def suggest_principal_for_appointment
-    Student.includes(:principal_appointments).where("student.sex = 'm' AND principal_appointments.principal_id IS NULL").limit(1).offset(rand(appointments_count)).first
+    single_principals.offset(rand(count_single_principals)).first
   end
 end
